@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
 using namespace std;
 
 
@@ -17,17 +18,16 @@ int  getPlace();
 void mainLoop();
 void versusComputer();
 void versusPlayer();
-bool isGameOver(vector<string> table, int turnCounter);
-void gameWon(string winner);
+bool isGameOver(const vector<string> &table);
+void gameWon(const string &winner);
 void gameTied();
-string switchTurn(string currentPlayer);
+string switchTurn(const string &currentPlayer);
 vector<string> playerMove(vector<string> table, string playerTurn);
 vector<string> computerMove(vector<string> table);
-vector<int> findSpots(vector<string> table, string spotType);
-vector<int> findEnemySpots(vector<string> table);
-int findPossibleWin(vector<int> takenSpots, vector<int> freeSpots);
-bool isNumberWithinVector(vector<int> givenVector, int givenNumber);
-int getRandomNumberFromVector(vector<int> givenVector);
+vector<int> findSpots(const vector<string> &table, const string &spotType);
+int findPossibleWin(const vector<int> &takenSpots, const vector<int> &freeSpots);
+bool isNumberWithinVector(const vector<int> &givenVector, const int &givenNumber);
+int getRandomNumberFromVector(const vector<int> &givenVector);
 
 int main(int argc, const char * argv[])
 {
@@ -56,8 +56,8 @@ void mainLoop(){
                 menuLoop = false;
                 break;
             default:
-                cout << "This is not a proper option, please specify correct gamemode by typing its number" << endl;
-                
+                cout << "This is not a proper option, please specify correct game mode by typing its number" << endl;
+
         }
     }
 }
@@ -77,13 +77,13 @@ void printTable (vector<string> table){
     }
 }
 int getPlace(){
-    
+
     int column = 0;
     int row = 0;
     bool rowGiven = false;
     bool columnGiven = false;
     cout << "Column (horizontal position):  " << endl;
-    
+
     while(!columnGiven)
     {
         cin >> column;
@@ -93,13 +93,13 @@ int getPlace(){
             columnGiven = true;
         }
     }
-    
+
     cout << "Row (vertical position): " << endl;
-    
+
     while(!rowGiven)
     {
         cin >> row;
-        
+
         if(!(row > 0 && row < 4))
         {
             cout << "Give number within range [1,3]" << endl;
@@ -110,7 +110,7 @@ int getPlace(){
         }
     }
     return 3*(row-1) + column-1;
-    
+
 }
 void versusComputer()
 {
@@ -122,6 +122,7 @@ void versusComputer()
     while(gameOn)
     {
         printTable(table);
+        cout << "--------------------------" << endl;
         if(turn.compare("X") == 0)
         {
             table = playerMove(table, turn);
@@ -132,22 +133,21 @@ void versusComputer()
         }
         turnCounter++;
         if(turnCounter >= 5){
-            isGameOver(table, turnCounter);
-            if(isGameOver(table, turnCounter)){
+            if(isGameOver(table)){
                 gameOn = false;
                 printTable(table);
                 gameWon(turn);
-                
+
             }else if(turnCounter>=9){
                 gameOn = false;
                 printTable(table);
                 gameTied();
-                
+
             }
         }
         turn = switchTurn(turn);
-        
-        
+
+
     }
 }
 void versusPlayer()
@@ -158,23 +158,24 @@ void versusPlayer()
     vector<string> table = {" ", " ", " ", " ", " ", " ", " ", " ", " "};
     string turn = "X";
     while(gameOn){
-        
+
         printTable(table);
+        cout << "--------------------------" << endl;
         table = playerMove(table, turn);
         turnCounter++;
-        
+
         if(turnCounter >= 5){
-            isGameOver(table, turnCounter);
-            if(isGameOver(table, turnCounter)){
+            if(isGameOver(table)){
                 gameOn = false;
                 printTable(table);
                 gameWon(turn);
-                
+
+
             }else if(turnCounter>=9){
                 gameOn = false;
                 printTable(table);
                 gameTied();
-                
+
             }
         }
         turn = switchTurn(turn);
@@ -200,9 +201,9 @@ vector<string> computerMove(vector<string> table)
     vector<int> freeSpots = findSpots(table, " ");
     vector<int> playerSpots = findSpots(table, "X");
     vector<int> computerSpots = findSpots(table, "O");
-    
+
     int possibleComputerWin = findPossibleWin(computerSpots, freeSpots);
-    
+
     if(possibleComputerWin != -1)
     {
         table[possibleComputerWin] = "O";
@@ -222,7 +223,7 @@ vector<string> computerMove(vector<string> table)
     }
     return table;
 }
-int findPossibleWin(vector<int> takenSpots, vector<int> freeSpots){
+int findPossibleWin(const vector<int> &takenSpots, const vector<int> &freeSpots){
     vector<vector<int>> possibleWins = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6}, {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
     int winningMove = -1;
     for(int i = 0; i < possibleWins.size(); i++)
@@ -251,7 +252,7 @@ int findPossibleWin(vector<int> takenSpots, vector<int> freeSpots){
     }
     return winningMove;
 }
-bool isNumberWithinVector(vector<int> givenVector, int givenNumber)
+bool isNumberWithinVector(const vector<int> &givenVector, const int &givenNumber)
 {
     for(int i = 0; i < givenVector.size(); i++)
     {
@@ -262,12 +263,14 @@ bool isNumberWithinVector(vector<int> givenVector, int givenNumber)
     }
     return false;
 }
-int getRandomNumberFromVector(vector<int> givenVector)
+int getRandomNumberFromVector(const vector<int> &givenVector)
 {
-    int randomNumber = rand() % givenVector.size();
-    return randomNumber;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(0, givenVector.size()-1);
+    return givenVector[dis(gen)];
 }
-vector<int> findSpots(vector<string> table, string spot)
+vector<int> findSpots(const vector<string> &table, const string &spot)
 {
     vector <int> spots = {};
     for(int i = 0; i < table.size(); i++)
@@ -279,56 +282,40 @@ vector<int> findSpots(vector<string> table, string spot)
     }
     return spots;
 }
-string switchTurn(string turn)
+string switchTurn(const string &turn)
 {
     string nextPlayer = turn.compare("X") == 0 ? "O" : "X";
     return nextPlayer;
 }
 
-bool isGameOver (vector<string> table, int turnCounter){//TODO: rewrite using 3 loops, one for horizontal, vertical and skew lines
-    if(table[0].compare(table[1]) + table[1].compare(table[2]) == 0 && table[0].compare(" ") != 0) // upper horizontal line
+bool isGameOver (const vector<string> &table) {
+    for (int i = 0; i < 3; i++) {
+        if (table[3 * i] == table[3 * i + 1] && table[3 * i + 1] == table[3 * i + 2] && table[3 * i] != " ")
+        {
+            return true;
+        }
+        if (table[i] == table[3 + i] && table[3 + i] == table[6 + i] && table[i] != " ")
+        {
+            return true;
+        }
+    }
+    if(table[0] == table[4] && table[4] == table[8] && table[0] != " ")
     {
         return true;
     }
-    else if(table[3].compare(table[4]) == 0 && table[4].compare(table[5]) == 0 && table[3].compare(" ") != 0) // middle horizontal line
+    if(table[2] == table[4] && table[4] == table[6] && table[2] != " ")
     {
         return true;
     }
-    else if(table[6].compare(table[7]) == 0 && table[7].compare(table[8]) == 0 && table[6].compare(" ") != 0) // lower horizontal line
-    {
-        return true;
-    }
-    else if(table[0].compare(table[3]) == 0 && table[3].compare(table[6]) == 0 && table[0].compare(" ") != 0) // left vertical line
-    {
-        return true;
-    }
-    else if(table[1].compare(table[4]) == 0 && table[4].compare(table[7]) == 0 && table[1].compare(" ") != 0) // middle vertical line
-    {
-        return true;
-    }
-    else if(table[2].compare(table[5]) == 0 && table[5].compare(table[8]) == 0 && table[2].compare(" ") != 0) // right vertical line
-    {
-        return true;
-    }
-    else if(table[0].compare(table[4]) == 0 && table[4].compare(table[8]) == 0 && table[0].compare(" ") != 0) // top-left to bottom-right line;
-    {
-        return true;
-    }
-    else if(table[2].compare(table[4]) == 0 && table[4].compare(table[6]) == 0 && table[22].compare(" ") != 0) // top-right to bottom-left  line
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return false;
 }
-void gameWon(string winner)
+
+void gameWon(const string &winner)
 {
     cout << "The game is over! " << winner << " has won! Going back to menu..." << endl;
-    
+
 }
 void gameTied()
 {
-    cout << "The game is over! Unfortunately noone has won. Going back to menu..." << endl;
+    cout << "The game is over! Unfortunately no one has won. Going back to menu..." << endl;
 }

@@ -33,9 +33,6 @@ int main(int argc, const char * argv[])
 {
     mainLoop();
 }
-// insert code here...
-//
-//}
 void mainLoop(){
     bool menuLoop = true;
     while(menuLoop)

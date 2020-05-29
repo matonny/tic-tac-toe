@@ -33,28 +33,25 @@ int main(int argc, const char * argv[])
 {
     mainLoop();
 }
+// insert code here...
+//
+//}
 void mainLoop(){
     bool menuLoop = true;
     while(menuLoop)
     {
         cout << "Tic Tac Toe. Choose an option by typing its number: " << endl;
         cout << "1. Versus Computer" << endl << "2. Versus Player" << endl << "3. Quit" << endl;
-        int gameMode = 0;
+        string gameMode = "";
         cin >> gameMode;
-        switch (gameMode)
-        {
-            case 1:
-                versusComputer();
-                break;
-            case 2:
-                versusPlayer();
-                break;
-            case 3:
-                menuLoop = false;
-                break;
-            default:
-                cout << "This is not a proper option, please specify correct game mode by typing its number" << endl;
-
+        if(gameMode == "1"){
+            versusComputer();
+        }else if(gameMode == "2"){
+            versusPlayer();
+        }else if(gameMode == "3"){
+            break;
+        }else{
+            cout << "This is not a proper option, please specify correct game mode by typing its number" << endl;
         }
     }
 }
